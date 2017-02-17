@@ -532,7 +532,7 @@ class Assets extends Component
 
         $descendantFolders = $this->getAllDescendantFolders($folder);
         $parentPath = dirname($folder->path);
-        $newFullPath = ($parentPath && $parentPath !== '.' ? $parentPath.'/' : '').$newName;
+        $newFullPath = ($parentPath && $parentPath !== '.' ? $parentPath.'/' : '').$newName.'/';
 
         foreach ($descendantFolders as $descendantFolder) {
             $descendantFolder->path = preg_replace('#^'.$folder->path.'#', $newFullPath.'/', $descendantFolder->path);
@@ -868,7 +868,7 @@ class Assets extends Component
             throw new AssetLogicException();
         }
         $volume = $folder->getVolume();
-        $fileList = $volume->getFileList($folder->path, false);
+        $fileList = $volume->getFileList((string)$folder->path, false);
 
         // Flip the array for faster lookup
         $existingFiles = [];

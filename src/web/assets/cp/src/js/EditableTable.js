@@ -17,6 +17,8 @@ Craft.EditableTable = Garnish.Base.extend(
         $tbody: null,
         $addRowBtn: null,
 
+        radioCheckboxes: {},
+
         init: function(id, baseName, columns, settings) {
             this.id = id;
             this.baseName = baseName;
@@ -33,9 +35,9 @@ Craft.EditableTable = Garnish.Base.extend(
 
             if (this.isVisible()) {
                 this.initialize();
-            }
-            else {
-                this.addListener(Garnish.$win, 'resize', 'initializeIfVisible');
+            } else {
+                // Give everything a chance to initialize
+                Garnish.requestAnimationFrame($.proxy(this, 'initializeIfVisible'));
             }
         },
 
@@ -62,8 +64,12 @@ Craft.EditableTable = Garnish.Base.extend(
         },
 
         initializeIfVisible: function() {
+            this.removeListener(Garnish.$win, 'resize');
+
             if (this.isVisible()) {
                 this.initialize();
+            } else {
+                this.addListener(Garnish.$win, 'resize', 'initializeIfVisible');
             }
         },
 
@@ -247,6 +253,14 @@ Craft.EditableTable.Row = Garnish.Base.extend(
                     }
 
                     textareasByColId[colId] = $textarea;
+                } else if (col.type == 'checkbox' && col.radioMode) {
+                    var $checkbox = $('input[type="checkbox"]', this.$tds[i]);
+                    if (typeof this.table.radioCheckboxes[colId] === 'undefined') {
+                        this.table.radioCheckboxes[colId] = [];
+                    }
+                    this.table.radioCheckboxes[colId].push($checkbox[0]);
+
+                    this.addListener($checkbox, 'change', {colId: colId}, 'onRadioCheckboxChange');
                 }
 
                 i++;
@@ -296,6 +310,15 @@ Craft.EditableTable.Row = Garnish.Base.extend(
                     $textarea.val(val);
                 }
             }, 0);
+        },
+
+        onRadioCheckboxChange: function(ev) {
+            if (ev.currentTarget.checked) {
+                for (var i = 0; i < this.table.radioCheckboxes[ev.data.colId].length; i++) {
+                    var checkbox = this.table.radioCheckboxes[ev.data.colId][i];
+                    checkbox.checked = (checkbox === ev.currentTarget);
+                }
+            }
         },
 
         ignoreNextTextareaFocus: function(ev) {

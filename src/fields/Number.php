@@ -72,6 +72,11 @@ class Number extends Field implements PreviewableFieldInterface
             $this->max = null;
         }
 
+        // Normalize $min
+        if ($this->min !== null && empty($this->min)) {
+            $this->min = null;
+        }
+
         // Normalize $size
         if ($this->size !== null && empty($this->size)) {
             $this->size = null;
@@ -157,5 +162,16 @@ class Number extends Field implements PreviewableFieldInterface
             'value' => $value,
             'size' => $this->size
         ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getElementValidationRules(): array
+    {
+        $rules = parent::getElementValidationRules();
+        $rules[] = ['number', 'min' => $this->min ?: null, 'max' => $this->max ?: null];
+
+        return $rules;
     }
 }

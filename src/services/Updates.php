@@ -377,7 +377,7 @@ class Updates extends Component
 
             return (string)$response->getBody();
         } catch (\Exception $e) {
-            Craft::error('There was a problem getting the update feed for “'.$plugin->name.'”, so it was skipped: '.$e->getMessage(), __METHOD__);
+            Craft::error('There was a problem getting the changelog for “'.$plugin->name.'”, so it was skipped: '.$e->getMessage(), __METHOD__);
 
             return null;
         }
@@ -424,7 +424,7 @@ class Updates extends Component
                     // Prep the new release
                     $currentRelease = $releases[] = new UpdateRelease();
                     $currentRelease->version = $match[1];
-                    $releaseDate = DateTimeHelper::toDateTime($match[2]);
+                    $releaseDate = DateTimeHelper::toDateTime($match[2], true);
 
                     if ($releaseDate === false) {
                         $releaseDate = null;
